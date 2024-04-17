@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/redoc/bundles/redoc.standalone.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/redoc/bundles/redoc.standalone.js"></script>
+</head>
+<body>
+    <div id="redoc-container"></div>
+    <script>
+        const spec = atob('{{.EncodedSpecContent}}');
+        Redoc.init(JSON.parse(spec), {}, document.getElementById('redoc-container'));
+    </script>
+</body>
+</html>

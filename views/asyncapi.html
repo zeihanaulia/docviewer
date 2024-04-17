@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://unpkg.com/@asyncapi/react-component@latest/styles/default.min.css">
+  </head>
+  <body>
+    <div id="asyncapi"></div>
+
+    <script src="https://unpkg.com/@asyncapi/react-component@latest/browser/standalone/index.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        try {
+          // Decoding from base64 and parsing the JSON
+          var spec = atob('{{.EncodedSpecContent}}');
+          var asyncApiSpec = JSON.parse(spec);
+
+          // Log the object to ensure it's structured correctly
+          console.log(asyncApiSpec);
+
+          // Rendering the AsyncAPI component
+          AsyncApiStandalone.render({
+            schema: asyncApiSpec,
+            config: {
+              show: {
+                sidebar: true
+              }
+            },
+          }, document.getElementById('asyncapi'));
+        } catch (e) {
+          console.error('Error processing the AsyncAPI spec:', e);
+          // Optionally render error information to the user here
+        }
+      });
+    </script>
+  </body>
+</html>
