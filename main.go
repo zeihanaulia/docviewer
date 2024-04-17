@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -15,6 +16,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+//go:embed templates/*
+var resources embed.FS
+
+// Define a struct to hold our template
 // Define a struct to hold our template
 type Template struct {
 	templates *template.Template
@@ -22,8 +27,13 @@ type Template struct {
 
 // Parse and load templates on initialization
 func NewTemplate() *Template {
+	// Parse templates from the embedded filesystem
+	templates, err := template.ParseFS(resources, "templates/*")
+	if err != nil {
+		log.Fatalf("Error parsing templates: %v", err)
+	}
 	return &Template{
-		templates: template.Must(template.ParseGlob("views/*.html")),
+		templates: template.Must(templates, err),
 	}
 }
 

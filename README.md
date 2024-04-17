@@ -104,6 +104,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 Contact
 -------
 
-Your Name - example@example.com
+Zeihan Aulia - zeihan.aulia@outlook.com
 
 Project Link: <https://github.com/zeihanaulia/docviewer>
