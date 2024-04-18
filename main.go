@@ -12,6 +12,7 @@ import (
 
 	"io"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"gopkg.in/yaml.v2"
@@ -92,7 +93,6 @@ func convertYAMLToJSON(data []byte) ([]byte, error) {
 }
 
 func handleDocumentation(c *fiber.Ctx, t *Template, specType, templateName string) error {
-	specURL := c.Params("*") + "?" + c.Request().URI().QueryArgs().String()
 	rawURL := c.Params("*")
 	// Prepare the full URL including query parameters if they exist
 	query := c.Request().URI().QueryArgs().String()
@@ -106,13 +106,13 @@ func handleDocumentation(c *fiber.Ctx, t *Template, specType, templateName strin
 	}
 	defer resp.Body.Close()
 
-	data, err := io.ReadAll(io.Reader(resp.Body))
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).SendString("Failed to read the specification")
 	}
 
 	var jsonData []byte
-	if strings.HasSuffix(specURL, ".yaml") || strings.HasSuffix(specURL, ".yml") {
+	if strings.HasSuffix(rawURL, ".yaml") || strings.HasSuffix(rawURL, ".yml") {
 		jsonData, err = convertYAMLToJSON(data)
 		if err != nil {
 			return c.Status(http.StatusInternalServerError).SendString("Failed to convert YAML to JSON: " + err.Error())
@@ -121,15 +121,15 @@ func handleDocumentation(c *fiber.Ctx, t *Template, specType, templateName strin
 		jsonData = data // Assume the data is already JSON
 	}
 
-	// Check AsyncAPI version if specType is "asyncapi"
-	if specType == "asyncapi" {
-		var spec map[string]interface{}
-		if err := json.Unmarshal(jsonData, &spec); err != nil {
-			return c.Status(http.StatusInternalServerError).SendString("Failed to parse JSON: " + err.Error())
+	if specType == "openapi" {
+		// Validate OpenAPI schema
+		loader := openapi3.NewLoader()
+		doc, err := loader.LoadFromData(jsonData)
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).SendString("Failed to load OpenAPI data: " + err.Error())
 		}
-		version, ok := spec["asyncapi"].(string)
-		if ok && strings.HasPrefix(version, "3.") {
-			return t.Render(c, "unsupported_version.html", nil)
+		if err := doc.Validate(loader.Context); err != nil {
+			return t.Render(c, "error_invalid_schema.html", nil)
 		}
 	}
 
