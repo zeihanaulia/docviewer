@@ -6,10 +6,11 @@ import (
 	"encoding/json"
 	"errors"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
+
+	"io"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -91,14 +92,21 @@ func convertYAMLToJSON(data []byte) ([]byte, error) {
 }
 
 func handleDocumentation(c *fiber.Ctx, t *Template, specType, templateName string) error {
-	specURL := c.Params("*")
-	resp, err := http.Get(specURL)
+	specURL := c.Params("*") + "?" + c.Request().URI().QueryArgs().String()
+	rawURL := c.Params("*")
+	// Prepare the full URL including query parameters if they exist
+	query := c.Request().URI().QueryArgs().String()
+	if query != "" {
+		rawURL += "?" + query
+	}
+
+	resp, err := http.Get(rawURL)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).SendString("Failed to retrieve the specification")
 	}
 	defer resp.Body.Close()
 
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(io.Reader(resp.Body))
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).SendString("Failed to read the specification")
 	}

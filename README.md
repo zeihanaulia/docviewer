@@ -29,20 +29,14 @@ Ensure you have the following installed:
 1.  Clone the repository:
 
     ```
-    bashCopy code
-    `git clone https://your-repository-url
-    cd your-repository-directory
-    `
-
+    git clone https://github.com/zeihanaulia/docviewer
+    cd docviewer
     ```
 
 2.  Install the required Go packages:
 
     ```
-    bashCopy code
-    `go mod tidy
-    `
-
+    go mod tidy
     ```
 
 ### Running the Application
@@ -50,10 +44,7 @@ Ensure you have the following installed:
 To run the application, execute:
 
 ```
-bashCopy code
-`go run main.go
-`
-
+go run main.go
 ```
 
 This starts the server on `http://localhost:8080`. You can access the API documentation interfaces by navigating to specific URLs (detailed in the Usage section below).

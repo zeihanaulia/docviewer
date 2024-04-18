@@ -1,36 +1,56 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AsyncAPI Visualization</title>
     <link rel="stylesheet" href="https://unpkg.com/@asyncapi/react-component@latest/styles/default.min.css">
-  </head>
-  <body>
-    <div id="asyncapi"></div>
+    <style>
+      .loader {
+        border: 16px solid #f3f3f3; /* Light grey */
+        border-top: 16px solid #3498db; /* Blue */
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        animation: spin 2s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
 
+      @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+    </style>
+</head>
+<body>
+    <div class="loader" id="loader"></div>
+    <div id="asyncapi"></div>
     <script src="https://unpkg.com/@asyncapi/react-component@latest/browser/standalone/index.js"></script>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        try {
-          // Decoding from base64 and parsing the JSON
-          var spec = atob('{{.EncodedSpecContent}}');
-          var asyncApiSpec = JSON.parse(spec);
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                var spec = atob('{{.EncodedSpecContent}}');
+                var asyncApiSpec = JSON.parse(spec);
+                console.log(asyncApiSpec);
 
-          // Log the object to ensure it's structured correctly
-          console.log(asyncApiSpec);
-
-          // Rendering the AsyncAPI component
-          AsyncApiStandalone.render({
-            schema: asyncApiSpec,
-            config: {
-              show: {
-                sidebar: true
-              }
-            },
-          }, document.getElementById('asyncapi'));
-        } catch (e) {
-          console.error('Error processing the AsyncAPI spec:', e);
-          // Optionally render error information to the user here
-        }
-      });
+                AsyncApiStandalone.render({
+                    schema: asyncApiSpec,
+                    config: {
+                        show: {
+                            sidebar: true
+                        }
+                    },
+                    onComplete: function() {
+                        document.getElementById('loader').style.display = 'none';
+                    }
+                }, document.getElementById('asyncapi'));
+            } catch (e) {
+                console.error('Error processing the AsyncAPI spec:', e);
+                document.getElementById('loader').style.display = 'none';
+            }
+        });
     </script>
-  </body>
+</body>
 </html>
